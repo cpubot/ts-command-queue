@@ -1,0 +1,9 @@
+{
+  "extends": ["tslint-config-airbnb", "tslint-config-prettier"],
+  "rules": {
+    "no-console": true,
+    "align": true,
+    "newline-before-return": true,
+    "no-consecutive-blank-lines": true
+  }
+}
