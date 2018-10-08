@@ -8,7 +8,9 @@
     "emitDecoratorMetadata": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "module": "commonjs"
+    "module": "commonjs",
+    "sourceMap": true,
+    "declaration": true
   },
   "include": ["src/**/*", "__tests__/**/*"],
   "exclude": ["jest.config*", "jest.setup*"]

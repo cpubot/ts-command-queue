@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "license": "UNLICENSED",
-  "private": true,
   "devDependencies": {
     "@types/jest": "^23.3.3",
     "jest": "^23.6.0",
@@ -19,7 +18,17 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "checkall": "yarn tslint && yarn test"
+    "checkall": "yarn tslint && yarn test",
+    "clean": "rm -rf dist/*",
+    "rebuild": "yarn clean; yarn build",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://rival.jfrog.io/rival/api/npm/npm/"
+  },
+  "publishConfig": {
+    "registry": "https://rival.jfrog.io/rival/api/npm/npm-local/"
   },
   "author": "Zach Brown <zach@10etechnology.com>",
   "dependencies": {}

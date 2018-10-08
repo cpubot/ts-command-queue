@@ -49,7 +49,7 @@ class AsynchronousView extends View<Command, ViewResult> {
   }
 }
 
-const TEST_WAIT_BUFFER = 5;
+const TEST_WAIT_BUFFER = 20;
 
 describe('command queue', () => {
   context('given single command', () => {

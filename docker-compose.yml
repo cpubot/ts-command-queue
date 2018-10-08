@@ -1,0 +1,7 @@
+version: '3'
+services:
+  test:
+    image: 320083444745.dkr.ecr.us-west-2.amazonaws.com/rival/ts-command-queue:dependencies
+    working_dir: $PWD
+    volumes:
+      - $PWD:$PWD
