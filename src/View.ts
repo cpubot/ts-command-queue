@@ -42,7 +42,12 @@ abstract class View<T, O> {
   private currentState: O;
   private subscriptions: Set<(result: O) => void> = new Set();
   // Promise used to indicate completion of the `initialize` method
-  private isInitialized: Promise<boolean>;
+  private resolve: () => void;
+  private reject: (reason?: any) => void;
+  private isInitialized: Promise<void> = new Promise((resolve, reject) => {
+    this.resolve = resolve;
+    this.reject = reject;
+  });
 
   /**
    * Call all registered callbacks with given state.
@@ -60,7 +65,7 @@ abstract class View<T, O> {
    * @param queue log of all commands ever dispatched
    */
   async initialize(queue: T[]): Promise<void> {
-    this.isInitialized = new Promise(async resolve => {
+    try {
       // Retrieve initial version of the data structure
       let state = await this.getInitialState();
 
@@ -75,8 +80,10 @@ abstract class View<T, O> {
 
       this.currentState = state;
 
-      resolve();
-    });
+      this.resolve();
+    } catch {
+      this.reject();
+    }
   }
 
   /**
@@ -110,7 +117,10 @@ abstract class View<T, O> {
    */
   subscribe(callback: (result: O) => void): () => void {
     this.subscriptions.add(callback);
-    callback(this.currentState);
+
+    this.isInitialized.then(() => {
+      callback(this.currentState);
+    });
 
     return this.unsubscribe.bind(this, callback);
   }

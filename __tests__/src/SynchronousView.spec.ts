@@ -87,4 +87,45 @@ describe('command queue', () => {
       expect(value).toEqual(new Set());
     });
   });
+
+  context('given no commands', () => {
+    let value: ViewResult;
+
+    beforeAll(() => {
+      const view = new SynchronousView();
+      view.subscribe(result => {
+        value = result;
+      });
+
+      const commandQueue = new CommandQueue<Command>();
+      commandQueue.registerView(view);
+    });
+
+    it('receives the default state', () => {
+      expect(value).toEqual(new Set());
+    });
+  });
+
+  context('given late subscribed view', () => {
+    let value: ViewResult;
+
+    beforeAll(async () => {
+      const commandQueue = new CommandQueue<Command>();
+      const view = new SynchronousView();
+      commandQueue.registerView(view);
+
+      await new Promise(resolve =>
+        setTimeout(() => {
+          view.subscribe(result => {
+            value = result;
+          });
+          resolve();
+        }, 10)
+      );
+    });
+
+    it('receives the default state', () => {
+      expect(value).toEqual(new Set());
+    });
+  });
 });

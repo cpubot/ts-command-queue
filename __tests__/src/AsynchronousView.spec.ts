@@ -122,4 +122,26 @@ describe('command queue', () => {
       expect(value).toEqual(new Map());
     });
   });
+
+  context('given no commands', () => {
+    let value: ViewResult;
+
+    beforeAll(async () => {
+      const view = new AsynchronousView();
+      view.subscribe(result => {
+        value = result;
+      });
+
+      const commandQueue = new CommandQueue<Command>();
+      commandQueue.registerView(view);
+
+      await new Promise(resolve =>
+        setTimeout(resolve, WAIT_TIME + TEST_WAIT_BUFFER)
+      );
+    });
+
+    it('returns default state', () => {
+      expect(value).toEqual(new Map());
+    });
+  });
 });
