@@ -16,7 +16,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "checkall": "yarn tslint && yarn test",
     "clean": "rm -rf dist/*",
