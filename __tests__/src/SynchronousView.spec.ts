@@ -88,6 +88,35 @@ describe('command queue', () => {
     });
   });
 
+  context('given an array of commands', () => {
+    let value: ViewResult;
+
+    beforeAll(() => {
+      const view = new SynchronousView();
+      view.subscribe(result => {
+        value = result;
+      });
+
+      const commandQueue = new CommandQueue<Command>();
+      commandQueue.registerView(view);
+
+      commandQueue.push([
+        {
+          id: '1',
+          type: 'add',
+        },
+        {
+          id: '1',
+          type: 'remove',
+        },
+      ]);
+    });
+
+    it('executes in correct order', () => {
+      expect(value).toEqual(new Set());
+    });
+  });
+
   context('given no commands', () => {
     let value: ViewResult;
 

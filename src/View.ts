@@ -91,13 +91,20 @@ abstract class View<T, O> {
    *
    * @param command command to be pushed onto the View
    */
-  async push(command: T): Promise<void> {
+  async push(command: T | T[]): Promise<void> {
     // Wait for initialization to be completed before processing
     // command
     await this.isInitialized;
 
     // Given command, return next version of this data structure
-    const nextState = await this.getNextState(this.currentState, command);
+    let nextState: O = this.currentState;
+    if (Array.isArray(command)) {
+      command.forEach(
+        async c => (nextState = await this.getNextState(nextState, c))
+      );
+    } else {
+      nextState = await this.getNextState(this.currentState, command);
+    }
 
     // Fire callbacks **ONLY** if the state has changed. Note the
     // strict equality check. If this View manages a non-primitive

@@ -18,8 +18,13 @@ class CommandQueue<T> {
    *
    * @param command command to push onto queue
    */
-  push(command: T) {
-    this.queue.push(command);
+  push(command: T | T[]) {
+    if (Array.isArray(command)) {
+      this.queue.push(...command);
+    } else {
+      this.queue.push(command);
+    }
+
     this.pushToViews(command);
   }
 
@@ -57,7 +62,7 @@ class CommandQueue<T> {
    *
    * @param command command to be pushed onto views
    */
-  private pushToViews(command: T) {
+  private pushToViews(command: T | T[]) {
     this.views.forEach(view => {
       view.push(command);
     });

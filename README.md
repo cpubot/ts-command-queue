@@ -57,14 +57,31 @@ const commandQueue = new CommandQueue<Command>();
 **`.push`**: Push a command onto the queue. The command will subsequently be pushed to any registered `View`s.
 
 ```typescript
-push(command: T): void;
+push(command: T | T[]): void;
 ```
+
+Single command:
 
 ```javascript
 commandQueue.push({
   type: 'add',
   id: '1',
 });
+```
+
+Array of commands:
+
+```javascript
+commandQueue.push([
+  {
+    type: 'add',
+    id: '1',
+  },
+  {
+    type: 'add',
+    id: '2',
+  },
+]);
 ```
 
 **`registerView`**: Attach a `View` instance to the `CommandQueue` (`View` covered later). Returns a function which, when called, unregisters the given `View` from the `CommandQueue`.

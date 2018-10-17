@@ -123,6 +123,44 @@ describe('command queue', () => {
     });
   });
 
+  context('given an array of commands', () => {
+    let value: ViewResult;
+
+    beforeAll(async () => {
+      const view = new AsynchronousView();
+      view.subscribe(result => {
+        value = result;
+      });
+
+      const commandQueue = new CommandQueue<Command>();
+      commandQueue.registerView(view);
+
+      const commands: Command[] = [
+        {
+          id: '1',
+          type: 'add',
+        },
+        {
+          id: '1',
+          type: 'remove',
+        },
+      ];
+
+      commandQueue.push(commands);
+
+      await new Promise(resolve =>
+        setTimeout(
+          resolve,
+          (commands.length + 1) * WAIT_TIME + TEST_WAIT_BUFFER
+        )
+      );
+    });
+
+    it('executes in correct order', () => {
+      expect(value).toEqual(new Map());
+    });
+  });
+
   context('given no commands', () => {
     let value: ViewResult;
 
