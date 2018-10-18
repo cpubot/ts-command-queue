@@ -72,11 +72,11 @@ abstract class View<T, O> {
       // call `getNextState`, in order, on every command to
       // ascertain the most up to date version of the data
       // structure
-      queue.forEach(async command => {
+      for (const command of queue) {
         // `getNextState` may be async -- ensure calls
         // are executed in order
         state = await this.getNextState(state, command);
-      });
+      }
 
       this.currentState = state;
 
@@ -99,9 +99,9 @@ abstract class View<T, O> {
     // Given command, return next version of this data structure
     let nextState: O = this.currentState;
     if (Array.isArray(command)) {
-      command.forEach(
-        async c => (nextState = await this.getNextState(nextState, c))
-      );
+      for (const c of command) {
+        nextState = await this.getNextState(nextState, c);
+      }
     } else {
       nextState = await this.getNextState(this.currentState, command);
     }
