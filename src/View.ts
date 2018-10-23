@@ -1,3 +1,5 @@
+import ViewDerivation from './ViewDerivation';
+
 /**
  * Views exist to reduce an entire log of commands into an
  * optimized or specialized data structure for a specific use-case.
@@ -41,6 +43,7 @@ abstract class View<T, O> {
 
   private currentState: O;
   private subscriptions: Set<(result: O) => void> = new Set();
+  private derivations: Set<ViewDerivation<O, any>> = new Set();
   // Promise used to indicate completion of the `initialize` method
   private resolve: () => void;
   private reject: (reason?: any) => void;
@@ -113,6 +116,7 @@ abstract class View<T, O> {
     if (nextState !== this.currentState) {
       this.currentState = nextState;
       this.fireCallbacks(nextState);
+      this.updateDerivations(nextState);
     }
   }
 
@@ -139,6 +143,26 @@ abstract class View<T, O> {
    */
   unsubscribe(callback: (result: O) => void): void {
     this.subscriptions.delete(callback);
+  }
+
+  registerDerivation(derivation: ViewDerivation<O, any>): () => void {
+    this.derivations.add(derivation);
+
+    this.isInitialized.then(() => {
+      derivation.initialize(this.currentState);
+    });
+
+    return this.deregisterDerivation.bind(this, derivation);
+  }
+
+  deregisterDerivation(view: ViewDerivation<O, any>) {
+    this.derivations.delete(view);
+  }
+
+  updateDerivations(nextState: O) {
+    this.derivations.forEach(derivation =>
+      derivation.parentDidChange(nextState)
+    );
   }
 }
 
