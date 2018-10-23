@@ -1,6 +1,9 @@
 
 
 ### vNEXT
+Allow registering derivations of derivations
+
+### vNEXT
 Export ViewDerivation
 
 ### vNEXT
