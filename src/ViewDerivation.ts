@@ -3,6 +3,7 @@ abstract class ViewDerivation<I, O> {
   private resolve: () => void;
   private reject: (reason?: any) => void;
   private subscriptions: Set<(result: O) => void> = new Set();
+  private derivations: Set<ViewDerivation<O, any>> = new Set();
   private isInitialized: Promise<void> = new Promise((resolve, reject) => {
     this.resolve = resolve;
     this.reject = reject;
@@ -15,6 +16,9 @@ abstract class ViewDerivation<I, O> {
   ): Promise<O> | O;
 
   async parentDidChange(nextParentState: I) {
+    // Wait for initialization to be completed before processing next parentState
+    await this.isInitialized;
+
     const ourNextState = await this.getNextState(
       nextParentState,
       this.currentState
@@ -22,6 +26,7 @@ abstract class ViewDerivation<I, O> {
     if (this.currentState !== ourNextState) {
       this.currentState = ourNextState;
       this.fireCallbacks(ourNextState);
+      this.updateDerivations(ourNextState);
     }
   }
 
@@ -70,6 +75,26 @@ abstract class ViewDerivation<I, O> {
    */
   private fireCallbacks(currentState: O) {
     this.subscriptions.forEach(callback => callback(currentState));
+  }
+
+  registerDerivation(derivation: ViewDerivation<O, any>): () => void {
+    this.derivations.add(derivation);
+
+    this.isInitialized.then(() => {
+      derivation.initialize(this.currentState);
+    });
+
+    return this.deregisterDerivation.bind(this, derivation);
+  }
+
+  deregisterDerivation(view: ViewDerivation<O, any>) {
+    this.derivations.delete(view);
+  }
+
+  updateDerivations(nextState: O) {
+    this.derivations.forEach(derivation =>
+      derivation.parentDidChange(nextState)
+    );
   }
 }
 

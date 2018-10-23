@@ -53,6 +53,16 @@ class TotalCountDerivation extends ViewDerivation<ViewResult, number> {
   }
 }
 
+class CountPlusOneDerivation extends ViewDerivation<number, number> {
+  getInitialState() {
+    return 0;
+  }
+
+  getNextState(parentState: number) {
+    return parentState + 1;
+  }
+}
+
 describe('command queue', () => {
   context('given single command', () => {
     let value: number;
@@ -138,7 +148,40 @@ describe('command queue', () => {
     });
   });
 
-  context.only('given no commands', () => {
+  context('given derivation of derivation', () => {
+    let value: number;
+
+    beforeAll(async () => {
+      const view = new MapView();
+      const derivation = new TotalCountDerivation();
+      const plusOneDerivation = new CountPlusOneDerivation();
+
+      view.registerDerivation(derivation);
+      derivation.registerDerivation(plusOneDerivation);
+
+      plusOneDerivation.subscribe(result => {
+        value = result;
+      });
+
+      const commandQueue = new CommandQueue<Command>();
+      commandQueue.registerView(view);
+
+      commandQueue.push([
+        {
+          id: '1',
+          type: 'add',
+        },
+      ]);
+
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    });
+
+    it('executes in correct order', () => {
+      expect(value).toEqual(2);
+    });
+  });
+
+  context('given no commands', () => {
     let value: number;
 
     beforeAll(() => {
@@ -158,7 +201,7 @@ describe('command queue', () => {
     });
   });
 
-  context.only('given late subscribed view', () => {
+  context('given late subscribed view', () => {
     let value: number;
 
     beforeAll(async () => {
