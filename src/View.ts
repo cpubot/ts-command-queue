@@ -70,7 +70,9 @@ abstract class View<T, O> {
   async initialize(queue: T[]): Promise<void> {
     try {
       // Retrieve initial version of the data structure
-      let state = await this.getInitialState();
+      const initialResult = this.getInitialState();
+      let state =
+        initialResult instanceof Promise ? await initialResult : initialResult;
 
       // call `getNextState`, in order, on every command to
       // ascertain the most up to date version of the data
@@ -78,14 +80,15 @@ abstract class View<T, O> {
       for (const command of queue) {
         // `getNextState` may be async -- ensure calls
         // are executed in order
-        state = await this.getNextState(state, command);
+        const nextResult = this.getNextState(state, command);
+        state = nextResult instanceof Promise ? await nextResult : nextResult;
       }
 
       this.currentState = state;
 
       this.resolve();
-    } catch {
-      this.reject();
+    } catch (e) {
+      this.reject(e);
     }
   }
 
@@ -103,10 +106,12 @@ abstract class View<T, O> {
     let nextState: O = this.currentState;
     if (Array.isArray(command)) {
       for (const c of command) {
-        nextState = await this.getNextState(nextState, c);
+        const result = this.getNextState(nextState, c);
+        nextState = result instanceof Promise ? await result : result;
       }
     } else {
-      nextState = await this.getNextState(this.currentState, command);
+      const result = this.getNextState(nextState, command);
+      nextState = result instanceof Promise ? await result : result;
     }
 
     // Fire callbacks **ONLY** if the state has changed. Note the

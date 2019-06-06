@@ -16,7 +16,7 @@ type ViewResult = Set<string>;
 
 class SynchronousView extends View<Command, ViewResult> {
   getInitialState() {
-    return new Set();
+    return new Set<string>();
   }
 
   getNextState(set: ViewResult, command: Command) {

@@ -19,10 +19,10 @@ abstract class ViewDerivation<I, O> {
     // Wait for initialization to be completed before processing next parentState
     await this.isInitialized;
 
-    const ourNextState = await this.getNextState(
-      nextParentState,
-      this.currentState
-    );
+    const nextResult = this.getNextState(nextParentState, this.currentState);
+    const ourNextState =
+      nextResult instanceof Promise ? await nextResult : nextResult;
+
     if (this.currentState !== ourNextState) {
       this.currentState = ourNextState;
       this.fireCallbacks(ourNextState);
@@ -32,14 +32,18 @@ abstract class ViewDerivation<I, O> {
 
   async initialize(parentState: I) {
     try {
-      this.currentState = await this.getNextState(
+      const initialResult = this.getInitialState();
+      const nextResult = this.getNextState(
         parentState,
-        await this.getInitialState()
+        initialResult instanceof Promise ? await initialResult : initialResult
       );
 
+      this.currentState =
+        nextResult instanceof Promise ? await nextResult : nextResult;
+
       this.resolve();
-    } catch {
-      this.reject();
+    } catch (e) {
+      this.reject(e);
     }
   }
 
