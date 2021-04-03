@@ -1,4 +1,7 @@
 {
   "type": "js_library",
-  "name": "ts-command-queue"
+  "name": "ts-command-queue",
+  "docker_config": {
+    "extra_builder_os_packages": ["curl"]
+  }
 }
